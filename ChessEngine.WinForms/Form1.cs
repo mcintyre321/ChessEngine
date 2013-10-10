@@ -51,7 +51,7 @@ namespace ChessEngine.WinForms
                 var square = pair.Key;
                 pair.Value.Text = square.Piece == null
                                       ? ""
-                                      : square.Piece.PieceColour == PieceColour.White
+                                      : square.Piece.Colour == PieceColour.White
                                             ? square.Piece.PieceType.Characters[0].ToString()
                                             : square.Piece.PieceType.Characters[1].ToString();
             }

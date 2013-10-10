@@ -8,22 +8,22 @@ namespace ChessEngine
     {
         public Square Square { get; internal set; }
         public PieceType PieceType {get; internal set;}
-        public PieceColour PieceColour {get; internal set;}
+        public PieceColour Colour {get; internal set;}
         public bool HasMoved { get; set; }
 
         public IEnumerable<Square> GetMoves(bool getThreats)
         {
-            if (!getThreats && Square.Game.ColourWhoseTurnItIs != this.PieceColour) return Enumerable.Empty<Square>();
+            if (!getThreats && Square.Game.ColourWhoseTurnItIs != this.Colour) return Enumerable.Empty<Square>();
             var moveableSquares = this.PieceType.GetMoves(this).Where(sq => sq != null);
             if (this.PieceType == PieceType.King)
             {
-                moveableSquares = moveableSquares.Where(sq => getThreats || !sq.IsThreatenedBy(PieceColour.Opponent)).ToArray();
+                moveableSquares = moveableSquares.Where(sq => getThreats || !sq.IsThreatenedBy(Colour.Opponent)).ToArray();
             }
             else
             {
                 if (!getThreats)
                 {
-                    var king = Square.Game.Pieces.Single(p => p.PieceColour == this.PieceColour && p.PieceType == PieceType.King);
+                    var king = Square.Game.Pieces.Single(p => p.Colour == this.Colour && p.PieceType == PieceType.King);
                     var pin = ChessEngine.Directions.Compass.Select(d => king.Square.Walk(d.Item1, d.Item2)).SingleOrDefault(IsPin);
                     if (pin != null) moveableSquares = moveableSquares.Intersect(pin);
 
@@ -39,7 +39,7 @@ namespace ChessEngine
             if (piecesOnPath.Length == 2)
             {
                 var thisPieceIsBetweenKingAndEnemy = piecesOnPath[0].Piece == this;
-                var nextPieceIsEnemy = piecesOnPath[1].Piece.PieceColour != this.PieceColour;
+                var nextPieceIsEnemy = piecesOnPath[1].Piece.Colour != this.Colour;
                 var nextPieceIsPieceThatCanPin = PieceType.PinningTypes.Contains(piecesOnPath[1].Piece.PieceType);
                 if (thisPieceIsBetweenKingAndEnemy && nextPieceIsEnemy && nextPieceIsPieceThatCanPin)
                     return true;

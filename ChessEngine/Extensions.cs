@@ -9,7 +9,7 @@ namespace ChessEngine
         public static bool IsOpponentOf(this Piece potentialOppenent, Piece piece)
         {
             if (potentialOppenent == null) return false;
-            return potentialOppenent.PieceColour != piece.PieceColour;
+            return potentialOppenent.Colour != piece.Colour;
         }
 
         public static Func<Square, bool> CanEnter(this Piece piece)
@@ -18,8 +18,8 @@ namespace ChessEngine
         }
         public static bool IsThreatenedBy(this Square square, PieceColour enemyColour)
         {
-            var enemyKing = square.Game.Pieces.Single(p => p.PieceType == PieceType.King && p.PieceColour == enemyColour);
-            var threatenedByNonKingPieces = square.Game.Pieces.Where(p => p.PieceColour == enemyColour).Where(p => p.PieceType != PieceType.King) //would get unpleasantly recursive if we wen't down that route...
+            var enemyKing = square.Game.Pieces.Single(p => p.PieceType == PieceType.King && p.Colour == enemyColour);
+            var threatenedByNonKingPieces = square.Game.Pieces.Where(p => p.Colour == enemyColour).Where(p => p.PieceType != PieceType.King) //would get unpleasantly recursive if we wen't down that route...
                                    .SelectMany(p => p.GetMoves(getThreats: true));
             var threatenedByKing = enemyKing.Square.AdjacentSquares();
             return threatenedByNonKingPieces.Concat(threatenedByKing).Contains(square);

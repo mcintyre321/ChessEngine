@@ -7,7 +7,7 @@ namespace ChessEngine
     {
         public static IEnumerable<Square> GetMoves(Piece king)
         {
-            var opponentColour = king.PieceColour.Opponent;
+            var opponentColour = king.Colour.Opponent;
             Func<Square, bool> kingIsAllowedToEnterASquare = sq => king.CanEnter()(sq) && !sq.IsThreatenedBy(opponentColour);
             foreach (var adjacentSquare in king.Square.AdjacentSquares(allow: kingIsAllowedToEnterASquare))
             {

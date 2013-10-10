@@ -70,7 +70,7 @@ namespace ChessEngine
                                 square.Piece = new Piece()
                                 {
                                     PieceType = pieceType,
-                                    PieceColour = col,
+                                    Colour = col,
                                     Square = square
                                 };
                             }
@@ -80,7 +80,7 @@ namespace ChessEngine
 
         public void RegisterMove(Piece piece, Square destination, PieceType promotionType = null)
         {
-            if (piece.PieceColour != ColourWhoseTurnItIs)
+            if (piece.Colour != ColourWhoseTurnItIs)
             {
                 throw new InvalidMoveException("It is the other colours move");
             }
@@ -101,7 +101,7 @@ namespace ChessEngine
             if (piece.PieceType == PieceType.Pawn && targetPiece == null && origin.X != destination.X)
             {
                 //must be en-passant
-                var actualTarget = piece.Square.Nav(y: piece.PieceColour.Direction*-1);
+                var actualTarget = piece.Square.Nav(y: piece.Colour.Direction*-1);
                 actualTarget.Piece.Square = null;
                 actualTarget.Piece = null;
             }
@@ -145,7 +145,7 @@ namespace ChessEngine
                     }
                     else
                     {
-                        sb.Append(piece.PieceColour == PieceColour.White ? piece.PieceType.Characters[0] : piece.PieceType.Characters[1]);
+                        sb.Append(piece.Colour == PieceColour.White ? piece.PieceType.Characters[0] : piece.PieceType.Characters[1]);
                     }
                     sb.Append("|");
                 }
