@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace ChessEngine
@@ -7,7 +8,7 @@ namespace ChessEngine
     {
         public static IEnumerable<Square> GetMoves(ChessPiece piece)
         {
-            return Extensions.Directions().SelectMany(dir => 
+            return ChessEngine.Directions.Compass.SelectMany(dir => 
                 piece.Square.Walk(dir.Item1, dir.Item2, allow: piece.CanEnter()).TakeWhile(s => s != null)
             );
         }

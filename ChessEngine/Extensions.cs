@@ -46,20 +46,25 @@ namespace ChessEngine
         }
         public static IEnumerable<Square> AdjacentSquares(this Square square, Func<Square, bool> allow = null)
         {
-            return Directions().Select(d => square.Nav(x: d.Item1, y: d.Item2, allow: allow));
+            return ChessEngine.Directions.Compass.Select(d => square.Nav(x: d.Item1, y: d.Item2, allow: allow));
         }
+    }
 
-        public static IEnumerable<Tuple<int, int>> Directions()
+    internal class Directions
+    {
+        public static IEnumerable<Tuple<int, int>> Compass
         {
-            for (var x = -1; x < 2; x++)
+            get
             {
-                for (var y = -1; y < 2; y++)
+                for (var x = -1; x < 2; x++)
                 {
-                    if ((x == 0) && (y == 0)) continue;
-                    yield return Tuple.Create(x, y);
+                    for (var y = -1; y < 2; y++)
+                    {
+                        if ((x == 0) && (y == 0)) continue;
+                        yield return Tuple.Create(x, y);
+                    }
                 }
             }
         }
-
     }
 }

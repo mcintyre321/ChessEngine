@@ -24,7 +24,7 @@ namespace ChessEngine
                 if (!getThreats)
                 {
                     var king = Square.Game.Pieces.Single(p => p.PieceColour == this.PieceColour && p.PieceType == PieceType.King);
-                    var pin = Extensions.Directions().Select(d => king.Square.Walk(d.Item1, d.Item2)).SingleOrDefault(IsPin);
+                    var pin = ChessEngine.Directions.Compass.Select(d => king.Square.Walk(d.Item1, d.Item2)).SingleOrDefault(IsPin);
                     if (pin != null) moveableSquares = moveableSquares.Intersect(pin);
 
                 }
