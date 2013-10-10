@@ -12,12 +12,12 @@ namespace ChessEngine.WinForms
 {
     public partial class Form1 : Form
     {
-        private ChessBoard _chessBoard;
+        private ChessGame _chessGame;
 
         public Form1()
         {
             InitializeComponent();
-            _chessBoard = new ChessBoard();
+            _chessGame = new ChessGame();
             DrawBoard();
         }
         Dictionary<Square, Label> squareToControlLookup = new Dictionary<Square, Label>();
@@ -25,7 +25,7 @@ namespace ChessEngine.WinForms
         {
             const int squareSize = 50;
 
-            foreach (var square in _chessBoard.Squares)
+            foreach (var square in _chessGame.Squares)
             {
                 var squareControl = new Label()
                 {
@@ -36,11 +36,10 @@ namespace ChessEngine.WinForms
                     BackColor = GetBackColor(square),
                     ForeColor = Color.Black,
                     Font = new Font(FontFamily.GenericSansSerif, 25),
-
                 };
                 squareToControlLookup[square] = squareControl;
                 this.Controls.Add(squareControl);
-                squareControl.Click += (o, e) => HandleClick(square, squareControl);
+                squareControl.Click += (o, e) => HandleClick(square);
             }
             RefreshIcons();
         }
@@ -64,7 +63,7 @@ namespace ChessEngine.WinForms
         }
 
         private ChessPiece selected;
-        private void HandleClick(Square square, Label squareControl)
+        private void HandleClick(Square square)
         {
             if (selected == null)
             {
@@ -85,7 +84,7 @@ namespace ChessEngine.WinForms
                 {
                     try
                     {
-                        _chessBoard.RegisterMove(selected, square);
+                        _chessGame.RegisterMove(selected, square);
                         RefreshIcons();
                     }
                     catch (InvalidMoveException ex)
@@ -104,8 +103,41 @@ namespace ChessEngine.WinForms
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
+            this.Pasted += (o, ev) =>
+            {
+                _chessGame = new ChessGame(ev.ClipboardText);
+                this.Controls.Clear();
+                this.squareToControlLookup.Clear();
+                DrawBoard();
+            };
         }
+
+        public class ClipboardEventArgs : EventArgs
+        {
+            public string ClipboardText { get; set; }
+            public ClipboardEventArgs(string clipboardText)
+            {
+                ClipboardText = clipboardText;
+            }
+        }
+        public event EventHandler<ClipboardEventArgs> Pasted;
+
+        private const int WM_PASTE = 0x0302;
+        protected override void WndProc(ref Message m)
+        {
+            if (m.Msg == WM_PASTE)
+            {
+                var evt = Pasted;
+                if (evt != null)
+                {
+                    evt(this, new ClipboardEventArgs(Clipboard.GetText()));
+                }
+            }
+
+            base.WndProc(ref m);
+        }
+
+
 
     }
 }

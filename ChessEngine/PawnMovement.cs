@@ -23,7 +23,7 @@ namespace ChessEngine
             //en passant...
             if (pawn.Square.Y == (pawn.PieceColour.PawnRow + (pawn.PieceColour.Direction * 3)))
             {
-                var lastMove = pawn.Square.Board.Moves.LastOrDefault();
+                var lastMove = pawn.Square.Game.Moves.LastOrDefault();
                 if (lastMove != null)
                 {
                     var previouslyMovedPiece = lastMove.Item1;

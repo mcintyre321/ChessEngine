@@ -8,11 +8,15 @@ namespace ChessEngine
         public int X{get; internal set;}
         public int Y{get; internal set;}
         public ChessPiece Piece { get; internal set; }
-        public ChessBoard Board { get; internal set; }
-        public IEnumerable<Square> GetMoves()
+        public ChessGame Game { get; internal set; }
+        public IEnumerable<Square> GetMoves(bool ignoreTurn = false)
         {
             if (this.Piece == null) return Enumerable.Empty<Square>();
-            return this.Piece.PieceType.GetMoves(Piece).Where (sq => sq != null);
+            return Piece.GetMoves(ignoreTurn);
+        }
+        public override string ToString()
+        {
+            return "[" + ((char) (X + 97)) + (Y + 1).ToString() + "]";
         }
     }
 }

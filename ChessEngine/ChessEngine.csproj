@@ -41,7 +41,7 @@
   <ItemGroup>
     <Compile Include="BishopMovement.cs" />
     <Compile Include="ChessPiece.cs" />
-    <Compile Include="ChessBoard.cs" />
+    <Compile Include="ChessGame.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="InvalidMoveException.cs" />
     <Compile Include="KingMovement.cs" />

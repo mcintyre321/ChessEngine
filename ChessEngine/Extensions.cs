@@ -16,13 +16,13 @@ namespace ChessEngine
         {
             return sq => sq.Piece == null || sq.Piece.IsOpponentOf(piece);
         }
-        public static bool IsThreatenedBy(this Square square, PieceColour colour)
+        public static bool IsThreatenedBy(this Square square, PieceColour enemyColour)
         {
-            return
-                square.Board.Pieces.Where(p => p.PieceColour == colour)
-                      .Where(p => p.PieceType != PieceType.King) //would get unpleasantly recursive if we wen't down that route...
-                      .SelectMany(p => p.Square.GetMoves())
-                      .Contains(square);
+            var enemyKing = square.Game.Pieces.Single(p => p.PieceType == PieceType.King && p.PieceColour == enemyColour);
+            var threatenedByNonKingPieces = square.Game.Pieces.Where(p => p.PieceColour == enemyColour).Where(p => p.PieceType != PieceType.King) //would get unpleasantly recursive if we wen't down that route...
+                                   .SelectMany(p => p.GetMoves(getThreats: true));
+            var threatenedByKing = enemyKing.Square.AdjacentSquares();
+            return threatenedByNonKingPieces.Concat(threatenedByKing).Contains(square);
         }
 
 	
@@ -32,7 +32,7 @@ namespace ChessEngine
             if (square == null) return null;
             if ((square.X + x) > 7 || (square.Y + y) > 7) return null;
             if ((square.X + x) < 0 || (square.Y + y) < 0) return null;
-            var newSquare = square.Board._squares[square.X + x][square.Y + y];
+            var newSquare = square.Game.Board[square.X + x][square.Y + y];
             return allow(newSquare) ? newSquare : null;
         }  
 	
@@ -43,6 +43,23 @@ namespace ChessEngine
                 next = next.Nav(x, y, allow);
                 yield return next;
             }while(next != null);
-        }  
+        }
+        public static IEnumerable<Square> AdjacentSquares(this Square square, Func<Square, bool> allow = null)
+        {
+            return Directions().Select(d => square.Nav(x: d.Item1, y: d.Item2, allow: allow));
+        }
+
+        public static IEnumerable<Tuple<int, int>> Directions()
+        {
+            for (var x = -1; x < 2; x++)
+            {
+                for (var y = -1; y < 2; y++)
+                {
+                    if ((x == 0) && (y == 0)) continue;
+                    yield return Tuple.Create(x, y);
+                }
+            }
+        }
+
     }
 }

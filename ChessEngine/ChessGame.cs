@@ -7,13 +7,32 @@ using System.Threading.Tasks;
 
 namespace ChessEngine
 {
-    public class ChessBoard
+    public class ChessGame
     {
-        public Square[][] _squares;
-
-        public ChessBoard(string layout = null)
+        public PieceColour ColourWhoseTurnItIs { get; internal set; }
+        public Square[][] Board;
+        public ChessGame() : this(InitialLayout, PieceColour.White) { }
+        public ChessGame(string layout, PieceColour colourWhoseTurnItIs = null)
         {
-            layout = layout ??
+            colourWhoseTurnItIs = colourWhoseTurnItIs ?? PieceColour.White;
+            ColourWhoseTurnItIs = colourWhoseTurnItIs;
+            CreateBoard();
+            AddPiecesToBoard(layout);
+        }
+
+        private void CreateBoard()
+        {
+            Board = new Square[8][];
+
+            Enumerable.Range(0, 8).ToList().ForEach(x =>
+            {
+                Board[x] = new Square[8];
+                Enumerable.Range(0, 8).ToList().ForEach(y => { Board[x][y] = new Square {X = x, Y = y, Game = this}; });
+            });
+        }
+
+        internal List<Tuple<ChessPiece, Square, Square>> Moves = new List<Tuple<ChessPiece, Square, Square>>();
+        private const string InitialLayout =
 @"|♜|♞|♝|♛|♚|♝|♞|♜|
 |♟|♟|♟|♟|♟|♟|♟|♟|
 |＿|＿|＿|＿|＿|＿|＿|＿|
@@ -22,25 +41,11 @@ namespace ChessEngine
 |＿|＿|＿|＿|＿|＿|＿|＿|
 |♙|♙|♙|♙|♙|♙|♙|♙|
 |♖|♘|♗|♕|♔|♗|♘|♖|";
-            _squares = new Square[8][];
-
-            Enumerable.Range(0, 8).ToList().ForEach(x =>
-            {
-                _squares[x] = new Square[8];
-                Enumerable.Range(0, 8).ToList().ForEach(y =>
-                {
-                    _squares[x][y] = new Square { X = x, Y = y, Board = this };
-                });
-            });
-
-            AddPiecesToBoard(layout);
-        }
-        internal List<Tuple<ChessPiece, Square, Square>> Moves = new List<Tuple<ChessPiece, Square, Square>>();
-        public IEnumerable<ChessPiece> Pieces { get { return _squares.SelectMany(array => array).Select(x => x.Piece).Where(p => p != null); } }
+        public IEnumerable<ChessPiece> Pieces { get { return Board.SelectMany(array => array).Select(x => x.Piece).Where(p => p != null); } }
 
         public IEnumerable<Square> Squares
         {
-            get { return _squares.SelectMany(sq => sq); }
+            get { return Board.SelectMany(sq => sq); }
         }
 
         private void AddPiecesToBoard(string layout)
@@ -61,7 +66,7 @@ namespace ChessEngine
                                                 : pieceType.Characters[1];
                             if (character == pieceChar)
                             {
-                                var square = _squares[x][y];
+                                var square = Board[x][y];
                                 square.Piece = new ChessPiece()
                                 {
                                     PieceType = pieceType,
@@ -75,7 +80,7 @@ namespace ChessEngine
 
         public void RegisterMove(ChessPiece piece, Square destination, PieceType promotionType = null)
         {
-            if (piece.PieceColour == (Moves.Select(m => m.Item1.PieceColour).LastOrDefault() ?? PieceColour.Black))
+            if (piece.PieceColour == ColourWhoseTurnItIs)
             {
                 throw new InvalidMoveException("It is the other colours move");
             }
@@ -109,6 +114,7 @@ namespace ChessEngine
                     rook.Square.Piece = null;
                     rook.Square = destination.Nav(x: -1);
                     rook.Square.Piece = rook;
+                    rook.HasMoved = true;
                 }
                 else
                 {
@@ -116,6 +122,7 @@ namespace ChessEngine
                     rook.Square.Piece = null;
                     rook.Square = destination.Nav(x: -1);
                     destination.Nav(x: -1).Piece = rook;
+                    rook.HasMoved = true;
                 }
             }
             Moves.Add(Tuple.Create(piece, origin, destination));
@@ -130,7 +137,7 @@ namespace ChessEngine
                 sb.Append("|");
                 for (var x = 0; x < 8; x++)
                 {
-                    var piece = _squares[x][y].Piece;
+                    var piece = Board[x][y].Piece;
                     if (piece == null)
                     {
                         sb.Append('＿');
@@ -147,11 +154,29 @@ namespace ChessEngine
             return sb.ToString();
         }
 
-
-        public Square this[int x, int y]
+        /// <param name="x">0-7</param>
+        /// <param name="row">0-7</param>
+        internal Square this[int x, int row]
         {
-            get { return _squares[x][y]; }
+            get { return Board[x][row]; }
         }
+
+        public Square this[string colAndRow]
+        {
+            get { return this[colAndRow[0], int.Parse(colAndRow[1].ToString())]; }
+        }
+
+        /// <param name="column">a-h</param>
+        /// <param name="row">1-9</param>
+        public Square this[char column, int row]
+        {
+            get
+            {
+
+                return Board[((int)column - 97)][row - 1];
+            }
+        }
+
     }
 
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace ChessEngine
 {
@@ -6,19 +7,13 @@ namespace ChessEngine
     {
         public static IEnumerable<Square> GetMoves(ChessPiece king)
         {
-            var opponentColour = king.PieceColour == PieceColour.White ? PieceColour.Black : PieceColour.White;
-            for (var x = -1; x < 2; x++)
+            var opponentColour = king.PieceColour.Opponent;
+            Func<Square, bool> kingIsAllowedToEnterASquare = sq => king.CanEnter()(sq) && !sq.IsThreatenedBy(opponentColour);
+            foreach (var adjacentSquare in king.Square.AdjacentSquares(allow: kingIsAllowedToEnterASquare))
             {
-                for (var y = -1; y < 2; y++)
-                {
-                    if (x == 0 && y == 0) continue;
-                    yield return king.Square.Nav(
-                        x: x,
-                        y: y,
-                        allow: sq => king.CanEnter()(sq) && !king.Square.IsThreatenedBy(opponentColour)
-                        );
-                }
+                yield return adjacentSquare;
             }
+
             if (!king.HasMoved)
             {	
                 var leftRook = king.Square.Nav(x: -4).Piece;
