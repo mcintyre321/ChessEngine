@@ -62,7 +62,7 @@ namespace ChessEngine.WinForms
             return (square.X + square.Y) % 2 == 0 ? Color.White : Color.Gainsboro;
         }
 
-        private ChessPiece selected;
+        private Piece selected;
         private void HandleClick(Square square)
         {
             if (selected == null)

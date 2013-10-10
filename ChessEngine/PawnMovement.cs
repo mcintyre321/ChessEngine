@@ -5,7 +5,7 @@ namespace ChessEngine
 {
     static class PawnMovement
     {
-        public static IEnumerable<Square> GetMoves(ChessPiece pawn) 
+        public static IEnumerable<Square> GetMoves(Piece pawn) 
         {
             var forwardOne = pawn.Square.Nav(y: pawn.PieceColour.Direction, allow: sq => sq.Piece == null);
             if (forwardOne != null)

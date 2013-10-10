@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace ChessEngine
 {
-    public class ChessPiece
+    public class Piece
     {
         public Square Square { get; internal set; }
         public PieceType PieceType {get; internal set;}

@@ -31,7 +31,7 @@ namespace ChessEngine
             });
         }
 
-        internal List<Tuple<ChessPiece, Square, Square>> Moves = new List<Tuple<ChessPiece, Square, Square>>();
+        internal List<Tuple<Piece, Square, Square>> Moves = new List<Tuple<Piece, Square, Square>>();
         private const string InitialLayout =
 @"|♜|♞|♝|♛|♚|♝|♞|♜|
 |♟|♟|♟|♟|♟|♟|♟|♟|
@@ -41,7 +41,7 @@ namespace ChessEngine
 |＿|＿|＿|＿|＿|＿|＿|＿|
 |♙|♙|♙|♙|♙|♙|♙|♙|
 |♖|♘|♗|♕|♔|♗|♘|♖|";
-        public IEnumerable<ChessPiece> Pieces { get { return Board.SelectMany(array => array).Select(x => x.Piece).Where(p => p != null); } }
+        public IEnumerable<Piece> Pieces { get { return Board.SelectMany(array => array).Select(x => x.Piece).Where(p => p != null); } }
 
         public IEnumerable<Square> Squares
         {
@@ -67,7 +67,7 @@ namespace ChessEngine
                             if (character == pieceChar)
                             {
                                 var square = Board[x][y];
-                                square.Piece = new ChessPiece()
+                                square.Piece = new Piece()
                                 {
                                     PieceType = pieceType,
                                     PieceColour = col,
@@ -78,7 +78,7 @@ namespace ChessEngine
                 }
         }
 
-        public void RegisterMove(ChessPiece piece, Square destination, PieceType promotionType = null)
+        public void RegisterMove(Piece piece, Square destination, PieceType promotionType = null)
         {
             if (piece.PieceColour != ColourWhoseTurnItIs)
             {

@@ -6,7 +6,7 @@ namespace ChessEngine
 {
     static class QueenMovement
     {
-        public static IEnumerable<Square> GetMoves(ChessPiece piece)
+        public static IEnumerable<Square> GetMoves(Piece piece)
         {
             return ChessEngine.Directions.Compass.SelectMany(dir => 
                 piece.Square.Walk(dir.Item1, dir.Item2, allow: piece.CanEnter()).TakeWhile(s => s != null)

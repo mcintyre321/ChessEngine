@@ -6,13 +6,13 @@ namespace ChessEngine
 {
     static class Extensions
     {
-        public static bool IsOpponentOf(this ChessPiece potentialOppenent, ChessPiece piece)
+        public static bool IsOpponentOf(this Piece potentialOppenent, Piece piece)
         {
             if (potentialOppenent == null) return false;
             return potentialOppenent.PieceColour != piece.PieceColour;
         }
 
-        public static Func<Square, bool> CanEnter(this ChessPiece piece)
+        public static Func<Square, bool> CanEnter(this Piece piece)
         {
             return sq => sq.Piece == null || sq.Piece.IsOpponentOf(piece);
         }

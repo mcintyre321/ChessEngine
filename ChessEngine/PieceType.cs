@@ -8,7 +8,7 @@ namespace ChessEngine
     {
         internal string Name { get; set; }
         public string Characters { get; set; }
-        internal Func<ChessPiece, IEnumerable<Square>> GetMoves { get; set; }
+        internal Func<Piece, IEnumerable<Square>> GetMoves { get; set; }
         public override string ToString()
         {
             return Name;

@@ -5,7 +5,7 @@ namespace ChessEngine
 {
     static class KingMovement
     {
-        public static IEnumerable<Square> GetMoves(ChessPiece king)
+        public static IEnumerable<Square> GetMoves(Piece king)
         {
             var opponentColour = king.PieceColour.Opponent;
             Func<Square, bool> kingIsAllowedToEnterASquare = sq => king.CanEnter()(sq) && !sq.IsThreatenedBy(opponentColour);

@@ -7,7 +7,7 @@ namespace ChessEngine
     {
         public int X{get; internal set;}
         public int Y{get; internal set;}
-        public ChessPiece Piece { get; internal set; }
+        public Piece Piece { get; internal set; }
         public ChessGame Game { get; internal set; }
         public IEnumerable<Square> GetMoves(bool ignoreTurn = false)
         {
