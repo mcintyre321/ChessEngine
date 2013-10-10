@@ -38,7 +38,10 @@ namespace ChessEngine
             var piecesOnPath = squaresFromKing.Where(sq => sq != null && sq.Piece != null).Take(2).ToArray();
             if (piecesOnPath.Length == 2)
             {
-                if (piecesOnPath[0].Piece == this && PieceType.PinningTypes.Contains(piecesOnPath[1].Piece.PieceType))
+                var thisPieceIsBetweenKingAndEnemy = piecesOnPath[0].Piece == this;
+                var nextPieceIsEnemy = piecesOnPath[1].Piece.PieceColour != this.PieceColour;
+                var nextPieceIsPieceThatCanPin = PieceType.PinningTypes.Contains(piecesOnPath[1].Piece.PieceType);
+                if (thisPieceIsBetweenKingAndEnemy && nextPieceIsEnemy && nextPieceIsPieceThatCanPin)
                     return true;
             }
             return false;

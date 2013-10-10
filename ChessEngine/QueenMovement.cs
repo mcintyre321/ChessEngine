@@ -5,16 +5,11 @@ namespace ChessEngine
 {
     static class QueenMovement
     {
-        public static IEnumerable<Square> GetMoves(ChessPiece piece) 
+        public static IEnumerable<Square> GetMoves(ChessPiece piece)
         {
-            return 		piece.Square.Walk(x:  1, y : 1, allow: piece.CanEnter()).TakeWhile (s => s != null)
-                   		     .Concat(piece.Square.Walk(x: -1, y : 1, allow: piece.CanEnter()).TakeWhile (s => s != null))
-                   		     .Concat(piece.Square.Walk(x:  1, y: -1, allow: piece.CanEnter()).TakeWhile (s => s != null))
-                   		     .Concat(piece.Square.Walk(x: -1, y: -1, allow: piece.CanEnter()).TakeWhile (s => s != null))
-                   		     .Concat(piece.Square.Walk(x:  1, allow: piece.CanEnter()).TakeWhile (s => s != null))
-                   		     .Concat(piece.Square.Walk(x: -1, allow: piece.CanEnter()).TakeWhile (s => s != null))
-                   		     .Concat(piece.Square.Walk(y: -1, allow: piece.CanEnter()).TakeWhile (s => s != null))
-                   		     .Concat(piece.Square.Walk(y: -1, allow: piece.CanEnter()).TakeWhile (s => s != null));
+            return Extensions.Directions().SelectMany(dir => 
+                piece.Square.Walk(dir.Item1, dir.Item2, allow: piece.CanEnter()).TakeWhile(s => s != null)
+            );
         }
     }
 }

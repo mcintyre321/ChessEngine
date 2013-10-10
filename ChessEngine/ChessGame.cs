@@ -80,7 +80,7 @@ namespace ChessEngine
 
         public void RegisterMove(ChessPiece piece, Square destination, PieceType promotionType = null)
         {
-            if (piece.PieceColour == ColourWhoseTurnItIs)
+            if (piece.PieceColour != ColourWhoseTurnItIs)
             {
                 throw new InvalidMoveException("It is the other colours move");
             }
@@ -126,6 +126,7 @@ namespace ChessEngine
                 }
             }
             Moves.Add(Tuple.Create(piece, origin, destination));
+            ColourWhoseTurnItIs = ColourWhoseTurnItIs.Opponent;
         }
 
         public override string ToString()
