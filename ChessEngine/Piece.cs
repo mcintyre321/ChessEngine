@@ -7,31 +7,64 @@ namespace ChessEngine
     public class Piece
     {
         public Square Square { get; internal set; }
-        public PieceType PieceType {get; internal set;}
-        public PieceColour Colour {get; internal set;}
+        public PieceType PieceType { get; internal set; }
+        public PieceColour Colour { get; internal set; }
         public bool HasMoved { get; set; }
 
-        public IEnumerable<Square> GetMoves(bool getThreats)
+
+        public IEnumerable<Square> PotentialMoves()
         {
-            if (!getThreats && Square.Game.ColourWhoseTurnItIs != this.Colour) return Enumerable.Empty<Square>();
-            var moveableSquares = this.PieceType.GetMoves(this).Where(sq => sq != null);
+            if (Square.Game.ColourWhoseTurnItIs != this.Colour) return Enumerable.Empty<Square>();
+            var potentialMoves = ThreatenedSquares;
             if (this.PieceType == PieceType.King)
             {
-                moveableSquares = moveableSquares.Where(sq => getThreats || !sq.IsThreatenedBy(Colour.Opponent)).ToArray();
+                potentialMoves = potentialMoves.Where(sq => !sq.IsThreatenedBy(Colour.Opponent)).ToArray();
+                potentialMoves = potentialMoves.Concat(GetCastlingMoves());
             }
             else
             {
-                if (!getThreats)
-                {
-                    var king = Square.Game.Pieces.Single(p => p.Colour == this.Colour && p.PieceType == PieceType.King);
-                    var pin = ChessEngine.Directions.Compass.Select(d => king.Square.Walk(d.Item1, d.Item2)).SingleOrDefault(IsPin);
-                    if (pin != null) moveableSquares = moveableSquares.Intersect(pin);
+                var king = Square.Game.Pieces.Single(p => p.Colour == this.Colour && p.PieceType == PieceType.King);
+                var pin = Directions.Compass.Select(d => king.Square.Walk(d.Item1, d.Item2)).SingleOrDefault(IsPin);
+                if (pin != null) potentialMoves = potentialMoves.Intersect(pin);
+                //var squaresContainingCheckingPieces = Square.Game.EnemiesOf(this)
+                //                                            .Where(p => p.GetMoves(true).Contains(king.Square))
+                //                                            .Select(p => p.Square).ToArray();
+                //if (squaresContainingCheckingPieces.Any()) potentialMoves = potentialMoves.Intersect(squaresContainingCheckingPieces);
+            }
+            return potentialMoves;
+        }
 
+        private IEnumerable<Square> GetCastlingMoves()
+        {
+            if (!this.HasMoved)
+            {
+                var leftRook = this.Square.Nav(x: -4).Piece;
+                if (leftRook != null && !leftRook.HasMoved)
+                {
+                    if (this.Square.Nav(x: -3).Piece == null
+                        && this.Square.Nav(x: -2).Piece == null
+                        && this.Square.Nav(x: -1).Piece == null
+                        && !this.Square.Nav(x: -2).IsThreatenedBy(this.Colour.Opponent)
+                        && !this.Square.Nav(x: -1).IsThreatenedBy(this.Colour.Opponent)
+                        ) yield return this.Square.Nav(x: -2);
+                }
+                var rightRook = this.Square.Nav(x: 3).Piece;
+                if (rightRook != null && !rightRook.HasMoved)
+                {
+                    if (this.Square.Nav(x: 2).Piece == null
+                        && this.Square.Nav(x: 1).Piece == null
+                        && !this.Square.Nav(x: 2).IsThreatenedBy(this.Colour.Opponent)
+                        && !this.Square.Nav(x: 1).IsThreatenedBy(this.Colour.Opponent)
+                        ) yield return this.Square.Nav(x: 2);
                 }
             }
-            return moveableSquares;
         }
- 
+
+        internal IEnumerable<Square> ThreatenedSquares
+        {
+            get { return this.PieceType.GetThreatenedSquares(this).Where(sq => sq != null); }
+        }
+
 
         private bool IsPin(IEnumerable<Square> squaresFromKing)
         {

@@ -8,7 +8,7 @@ namespace ChessEngine
     {
         internal string Name { get; set; }
         public string Characters { get; set; }
-        internal Func<Piece, IEnumerable<Square>> GetMoves { get; set; }
+        internal Func<Piece, IEnumerable<Square>> GetThreatenedSquares { get; set; }
         public override string ToString()
         {
             return Name;
@@ -18,12 +18,12 @@ namespace ChessEngine
         }
         static PieceType()
         {
-            Pawn = new PieceType() { Name = "Pawn", Characters = "♙♟", GetMoves = PawnMovement.GetMoves };
-            Rook = new PieceType() { Name = "Rook", Characters = "♖♜", GetMoves = RookMovement.GetMoves };
-            Knight = new PieceType() { Name = "Knight", Characters = "♘♞", GetMoves = KnightMovement.GetMoves };
-            Bishop = new PieceType() { Name = "Bishop", Characters = "♗♝", GetMoves = BishopMovement.GetMoves };
-            Queen = new PieceType() { Name = "Queen", Characters = "♕♛", GetMoves = QueenMovement.GetMoves };
-            King = new PieceType() { Name = "King", Characters = "♔♚", GetMoves = KingMovement.GetMoves };
+            Pawn = new PieceType() { Name = "Pawn", Characters = "♙♟", GetThreatenedSquares = PawnMovement.GetMoves };
+            Rook = new PieceType() { Name = "Rook", Characters = "♖♜", GetThreatenedSquares = RookMovement.GetMoves };
+            Knight = new PieceType() { Name = "Knight", Characters = "♘♞", GetThreatenedSquares = KnightMovement.GetMoves };
+            Bishop = new PieceType() { Name = "Bishop", Characters = "♗♝", GetThreatenedSquares = BishopMovement.GetMoves };
+            Queen = new PieceType() { Name = "Queen", Characters = "♕♛", GetThreatenedSquares = QueenMovement.GetMoves };
+            King = new PieceType() { Name = "King", Characters = "♔♚", GetThreatenedSquares = KingMovement.GetMoves };
         }
         public static PieceType Pawn { get; private set; }
         public static PieceType Rook { get; private set; }

@@ -67,19 +67,22 @@ namespace ChessEngine.WinForms
         {
             if (selected == null)
             {
-                var moves = square.GetMoves().ToArray();
-                if (moves.Any())
+                if (square.Piece != null)
                 {
-                    selected = square.Piece;
-                    foreach (var move in moves)
+                    var moves = square.Piece.PotentialMoves().ToArray();
+                    if (moves.Any())
                     {
-                        squareToControlLookup[move].BackColor = Color.LightBlue;
+                        selected = square.Piece;
+                        foreach (var move in moves)
+                        {
+                            squareToControlLookup[move].BackColor = Color.LightBlue;
+                        }
                     }
                 }
             }
             else
             {
-                var moves = selected.Square.GetMoves().ToArray();
+                var moves = selected.Square.Piece.PotentialMoves().ToArray();
                 if (moves.Contains(square))
                 {
                     try

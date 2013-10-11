@@ -16,16 +16,15 @@ namespace ChessEngine
         {
             return sq => sq.Piece == null || sq.Piece.IsOpponentOf(piece);
         }
+
         public static bool IsThreatenedBy(this Square square, PieceColour enemyColour)
         {
-            var enemyKing = square.Game.Pieces.Single(p => p.PieceType == PieceType.King && p.Colour == enemyColour);
-            var threatenedByNonKingPieces = square.Game.Pieces.Where(p => p.Colour == enemyColour).Where(p => p.PieceType != PieceType.King) //would get unpleasantly recursive if we wen't down that route...
-                                   .SelectMany(p => p.GetMoves(getThreats: true));
-            var threatenedByKing = enemyKing.Square.AdjacentSquares();
-            return threatenedByNonKingPieces.Concat(threatenedByKing).Contains(square);
+            return square.Game.Pieces.Where(p => p.Colour == enemyColour && p.PieceType != PieceType.King)
+                         .SelectMany(p => p.ThreatenedSquares)
+                         .Any(ts => ts == square);
         }
 
-	
+
         public static Square Nav(this Square square, int x = 0, int y = 0, Func<Square, bool> allow = null)
         {
             allow = allow ?? (sq => true);

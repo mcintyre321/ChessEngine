@@ -84,7 +84,7 @@ namespace ChessEngine
             {
                 throw new InvalidMoveException("It is the other colours move");
             }
-            if (!piece.Square.GetMoves().Contains(destination))
+            if (!piece.PotentialMoves().Contains(destination))
             {
                 throw new InvalidMoveException("That piece cannot move to that square");
             }
@@ -120,7 +120,7 @@ namespace ChessEngine
                 {
                     var rook = destination.Nav(x: 3).Piece;
                     rook.Square.Piece = null;
-                    rook.Square = destination.Nav(x: -1);
+                    rook.Square = destination.Nav(x: 1);
                     destination.Nav(x: -1).Piece = rook;
                     rook.HasMoved = true;
                 }
@@ -178,6 +178,10 @@ namespace ChessEngine
             }
         }
 
+        public IEnumerable<Piece> EnemiesOf(Piece piece)
+        {
+            return Pieces.Where(p => p.Colour == piece.Colour.Opponent);
+        }
     }
 
 
