@@ -34,7 +34,7 @@ namespace ChessEngine.Tests
 |♙|♙|♙|＿|♙|♙|♙|♙|
 |♖|♘|♗|♕|♔|♗|♘|♖|";
             var chessBoard = new ChessGame(layout);
-            Assert.True(chessBoard[3, 3].Piece.PotentialMoves().Contains(chessBoard[4, 4]));
+            Assert.True(chessBoard[3, 3].Piece.PotentialMoves().Select(move => move.Destination).Contains(chessBoard[4, 4]));
         }
 
         [Test]
@@ -51,7 +51,7 @@ namespace ChessEngine.Tests
 |＿|＿|＿|♔|＿|＿|＿|＿|";
             var chessBoard = new ChessGame(layout);
             var squaresRookCanGoTo = new []{"d2", "d4", "d5", "d6", "d7", "d8"}.Select(coord => chessBoard[coord]);
-            CollectionAssert.AreEquivalent(squaresRookCanGoTo, chessBoard["d3"].Piece.PotentialMoves());
+            CollectionAssert.AreEquivalent(squaresRookCanGoTo, chessBoard["d3"].Piece.PotentialMoves().Select(m => m.Destination));
         }
 
         [Test]
@@ -72,7 +72,7 @@ namespace ChessEngine.Tests
             var northEast = new[] { "b1", "c2", "e4", "f5", "g6", "h7" }.Select(coord => chessBoard[coord]);
             var southEast = new[] { "a6", "b5", "c4", "e2", "f1", }.Select(coord => chessBoard[coord]);
             var squaresRookCanGoTo = northEast.Concat(southEast);
-            CollectionAssert.AreEquivalent(squaresRookCanGoTo, chessBoard["d3"].Piece.PotentialMoves());
+            CollectionAssert.AreEquivalent(squaresRookCanGoTo, chessBoard["d3"].Piece.PotentialMoves().Select(m => m.Destination));
         }
 
         [Test]
@@ -94,7 +94,24 @@ namespace ChessEngine.Tests
             var horizontal = new[] { 0, 1, 2, 4, 5, 6, 7 }.Select(col => chessBoard[col, 2]);
             var squaresRookCanGoTo = vertical
                 .Concat(horizontal);
-            CollectionAssert.AreEquivalent(squaresRookCanGoTo, chessBoard["d3"].Piece.PotentialMoves());
+            CollectionAssert.AreEquivalent(squaresRookCanGoTo, chessBoard["d3"].Piece.PotentialMoves().Select(m => m.Destination));
+        }
+
+        [Test]
+        public void KnightChecksAreRespected()
+        {
+            var layout = @"
+|＿|＿|＿|＿|♚|＿|＿|＿|
+|＿|＿|＿|＿|＿|＿|＿|＿|
+|＿|＿|＿|＿|＿|＿|＿|＿|
+|＿|＿|＿|♕|＿|＿|＿|＿|
+|＿|＿|＿|＿|＿|＿|＿|＿|
+|＿|＿|＿|＿|＿|＿|＿|＿|
+|＿|＿|♞|＿|＿|＿|＿|＿|
+|＿|＿|＿|＿|♔|＿|＿|＿|";
+            var chessBoard = new ChessGame(layout);
+
+            CollectionAssert.AreEquivalent(Enumerable.Empty<Square>(), chessBoard["d5"].Piece.PotentialMoves().Select(m => m.Destination));
         }
 
         [Test]
@@ -112,9 +129,10 @@ namespace ChessEngine.Tests
             var chessBoard = new ChessGame(layout);
 
             var squaresThatWouldBlockCheck = new[] { "e4", "e5" }.Select(coord => chessBoard[coord]);
-            CollectionAssert.AreEquivalent(squaresThatWouldBlockCheck, chessBoard["d5"].Piece.PotentialMoves());
+            CollectionAssert.AreEquivalent(squaresThatWouldBlockCheck, chessBoard["d5"].Piece.PotentialMoves().Select(m => m.Destination));
 
         }
+
         [Test]
         public void KingRespectsCheck()
         {
@@ -130,9 +148,64 @@ namespace ChessEngine.Tests
             var chessBoard = new ChessGame(layout);
 
             var safeSquares = new[] { "d1", "d2", "f1", "f2" }.Select(coord => chessBoard[coord]).ToArray();
-            CollectionAssert.AreEquivalent(safeSquares, chessBoard["e1"].Piece.PotentialMoves());
-
+            CollectionAssert.AreEquivalent(safeSquares, chessBoard["e1"].Piece.PotentialMoves().Select(m => m.Destination));
         }
 
+        [Test]
+        public void CanCastlePawn()
+        {
+            var layout = @"
+|＿|＿|＿|＿|♚|＿|＿|＿|
+|＿|＿|♙|＿|＿|＿|＿|＿|
+|＿|＿|＿|＿|＿|＿|＿|＿|
+|＿|＿|＿|＿|＿|＿|＿|＿|
+|＿|＿|＿|＿|＿|＿|＿|＿|
+|＿|＿|＿|＿|＿|＿|＿|＿|
+|＿|＿|＿|＿|＿|＿|＿|＿|
+|＿|＿|＿|＿|♔|＿|＿|＿|";
+            var chessBoard = new ChessGame(layout);
+
+            var moves = chessBoard["c7"].Piece.PotentialMoves();
+            Assert.AreEqual(4, moves.Count());
+            Assert.True(moves.All(m => m.PromotionType != null));
+            moves.Single(m => m.PromotionType == PieceType.Rook).Apply();
+            Assert.AreEqual(PieceType.Rook, chessBoard["c8"].Piece.PieceType);
+        }
+
+        [Test]
+        public void CanDetectCheckmate()
+        {
+            var layout = @"
+|＿|＿|♖|＿|♚|＿|＿|＿|
+|＿|＿|♖|＿|＿|＿|＿|＿|
+|＿|＿|＿|＿|＿|＿|＿|＿|
+|＿|＿|＿|＿|＿|＿|＿|＿|
+|＿|＿|＿|＿|＿|＿|＿|＿|
+|＿|＿|＿|＿|＿|＿|＿|＿|
+|＿|＿|＿|＿|＿|＿|＿|＿|
+|＿|＿|＿|＿|♔|＿|＿|＿|";
+            var chessBoard = new ChessGame(layout, PieceColour.Black);
+            var moves = chessBoard["e87"].Piece.PotentialMoves();
+            Assert.AreEqual(0, moves.Count());
+            Assert.AreEqual(GameState.CheckMate, chessBoard.State);
+        }
+
+        [Test]
+        public void CanDetectStalemate()
+        {
+            var layout = @"
+|＿|＿|＿|＿|♚|＿|＿|＿|
+|＿|＿|♖|＿|＿|＿|＿|＿|
+|＿|＿|＿|♖|＿|♖|＿|＿|
+|＿|＿|＿|＿|＿|＿|＿|＿|
+|＿|＿|＿|＿|＿|＿|＿|＿|
+|＿|＿|＿|＿|＿|＿|＿|＿|
+|＿|＿|＿|＿|＿|＿|＿|＿|
+|＿|＿|＿|＿|♔|＿|＿|＿|";
+            var chessBoard = new ChessGame(layout, PieceColour.Black);
+            var moves = chessBoard["e87"].Piece.PotentialMoves();
+            Assert.AreEqual(0, moves.Count());
+            Assert.AreEqual(GameState.Stalemate, chessBoard.State);
+        }
     }
 }

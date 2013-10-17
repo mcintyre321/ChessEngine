@@ -79,7 +79,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ChessEngine\ChessEngine.csproj">
-      <Project>{b832ef92-5886-46ad-a482-15a59508b4cd}</Project>
+      <Project>{11FFF0E3-184C-46D2-BC02-3AF0F8F530CA}</Project>
       <Name>ChessEngine</Name>
     </ProjectReference>
   </ItemGroup>

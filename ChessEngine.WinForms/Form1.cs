@@ -75,19 +75,26 @@ namespace ChessEngine.WinForms
                         selected = square.Piece;
                         foreach (var move in moves)
                         {
-                            squareToControlLookup[move].BackColor = Color.LightBlue;
+                            squareToControlLookup[move.Destination].BackColor = Color.LightBlue;
                         }
                     }
                 }
             }
             else
             {
-                var moves = selected.Square.Piece.PotentialMoves().ToArray();
-                if (moves.Contains(square))
+                var moves = selected.Square.Piece.PotentialMoves().Where(sq => sq.Destination == square);
+                if (moves.Any())
                 {
                     try
                     {
-                        _chessGame.RegisterMove(selected, square);
+                        if (moves.Count() > 1)
+                        {
+
+                        }
+                        else
+                        {
+                            moves.Single().Apply();
+                        }
                         RefreshIcons();
                     }
                     catch (InvalidMoveException ex)
@@ -98,7 +105,7 @@ namespace ChessEngine.WinForms
                 }
                 foreach (var move in moves)
                 {
-                    squareToControlLookup[move].BackColor = GetBackColor(move);
+                    squareToControlLookup[move.Destination].BackColor = GetBackColor(move.Destination);
                 }
                 selected = null;
             }

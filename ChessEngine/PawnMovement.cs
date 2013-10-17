@@ -26,11 +26,11 @@ namespace ChessEngine
                 var lastMove = pawn.Square.Game.Moves.LastOrDefault();
                 if (lastMove != null)
                 {
-                    var previouslyMovedPiece = lastMove.Item1;
+                    var previouslyMovedPiece = lastMove.Piece;
                     if (previouslyMovedPiece.IsOpponentOf(pawn) && previouslyMovedPiece.PieceType == PieceType.Pawn)
                     {
-                        var previousMoveOrigin = lastMove.Item2;
-                        var previousMoveDestination = lastMove.Item3;
+                        var previousMoveOrigin = lastMove.Piece.Square;
+                        var previousMoveDestination = lastMove.Destination;
                         if (previousMoveOrigin.Y == previouslyMovedPiece.Colour.PawnRow && previousMoveDestination.Y == pawn.Square.Y)
                         {
                             if (previousMoveDestination == pawn.Square.Nav(x: -1))

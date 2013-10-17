@@ -37,5 +37,10 @@ namespace ChessEngine
         {
             get { return new[] { Rook, Bishop, Queen }; }
         }
+
+        public IEnumerable<PieceType> PromotionTypes
+        {
+            get { return new[] { Knight, Bishop, Rook, Queen }; }
+        }
     }
 }

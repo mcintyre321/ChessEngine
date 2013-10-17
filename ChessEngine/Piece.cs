@@ -12,27 +12,40 @@ namespace ChessEngine
         public bool HasMoved { get; set; }
 
 
-        public IEnumerable<Square> PotentialMoves()
+        public IEnumerable<Move> PotentialMoves()
         {
-            if (Square.Game.ColourWhoseTurnItIs != this.Colour) return Enumerable.Empty<Square>();
-            var potentialMoves = ThreatenedSquares;
+            if (Square.Game.ColourWhoseTurnItIs != this.Colour) return Enumerable.Empty<Move>();
+            var moveableSquares = ThreatenedSquares;
             if (this.PieceType == PieceType.King)
             {
-                potentialMoves = potentialMoves.Where(sq => !sq.IsThreatenedBy(Colour.Opponent)).ToArray();
-                potentialMoves = potentialMoves.Concat(GetCastlingMoves());
+                moveableSquares = moveableSquares.Where(sq => !sq.IsThreatenedBy(Colour.Opponent)).ToArray();
+                moveableSquares = moveableSquares.Concat(GetCastlingMoves());
             }
             else
             {
                 var king = Square.Game.Pieces.Single(p => p.Colour == this.Colour && p.PieceType == PieceType.King);
-                var pin = Directions.Compass.Select(d => king.Square.Walk(d.Item1, d.Item2)).SingleOrDefault(IsPin);
-                if (pin != null) potentialMoves = potentialMoves.Intersect(pin);
-                //var squaresContainingCheckingPieces = Square.Game.EnemiesOf(this)
-                //                                            .Where(p => p.GetMoves(true).Contains(king.Square))
-                //                                            .Select(p => p.Square).ToArray();
-                //if (squaresContainingCheckingPieces.Any()) potentialMoves = potentialMoves.Intersect(squaresContainingCheckingPieces);
+                var pin = Directions.Compass.Select(d => king.Square.Walk(d)).SingleOrDefault(IsPin);
+                if (pin != null) moveableSquares = moveableSquares.Intersect(pin);
+
+                 
+                var checks = king.GetChecks();
+                foreach (var check in checks)
+                {
+                    moveableSquares = moveableSquares.Intersect(check.SquaresThatCanBeMovedToInOrderToBreakCheck);
+                }
             }
-            return potentialMoves;
+            var moves = moveableSquares.Select(square => new Move() { Destination = square, Piece = this });
+
+            if (this.PieceType == PieceType.Pawn && this.Square.Y == 6) //all moves must be to back row
+            {
+                moves = moves.SelectMany((move) => PieceType.PromotionTypes.Select(pt => new Move() { Destination = move.Destination, Piece = move.Piece, PromotionType = pt }));
+            }
+
+            return moves;
+
         }
+
+
 
         private IEnumerable<Square> GetCastlingMoves()
         {

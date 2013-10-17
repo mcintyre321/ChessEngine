@@ -28,3 +28,5 @@ _ReSharper*/
 *.vssscc
 $tf*/
 [Pp]ackages/
+_NCrunch_ChessEngine
+/*.ncrunchsolution

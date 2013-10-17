@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace ChessEngine
 {
@@ -24,14 +23,18 @@ namespace ChessEngine
         {
             Board = new Square[8][];
 
-            Enumerable.Range(0, 8).ToList().ForEach(x =>
+            foreach (var x in Enumerable.Range(0, 8))
             {
                 Board[x] = new Square[8];
-                Enumerable.Range(0, 8).ToList().ForEach(y => { Board[x][y] = new Square {X = x, Y = y, Game = this}; });
-            });
+                foreach (var y in Enumerable.Range(0, 8))
+                {
+                     Board[x][y] = new Square {X = x, Y = y, Game = this};
+                }
+            };
         }
 
-        internal List<Tuple<Piece, Square, Square>> Moves = new List<Tuple<Piece, Square, Square>>();
+        internal readonly List<Move> _moves = new List<Move>();
+        public IEnumerable<Move> Moves {get { return _moves; }} 
         private const string InitialLayout =
 @"|♜|♞|♝|♛|♚|♝|♞|♜|
 |♟|♟|♟|♟|♟|♟|♟|♟|
@@ -48,10 +51,24 @@ namespace ChessEngine
             get { return Board.SelectMany(sq => sq); }
         }
 
+        public GameState State
+        {
+            get
+            {
+                if (Pieces.Where(p => p.Colour == ColourWhoseTurnItIs).SelectMany(p => p.PotentialMoves()).Any())
+                {
+                    return GameState.InProgress;
+                }
+                var king = Pieces.Single(p => p.Colour == ColourWhoseTurnItIs && p.PieceType == PieceType.King);
+                return king.GetChecks().Any() ? GameState.CheckMate : GameState.Stalemate;
+            }
+        }
+
         private void AddPiecesToBoard(string layout)
         {
             var data = layout.Split(new[] { Environment.NewLine }, StringSplitOptions.None).Reverse()
-                             .Select(line => line.Where(c => c != '|').ToArray()).ToArray();
+                             .Select(line => line.ToCharArray().Where(c => c != '|').ToArray())
+                             .ToArray();
             for (var y = 0; y < 8; y++)
                 for (var x = 0; x < 8; x++)
                 {
@@ -78,57 +95,7 @@ namespace ChessEngine
                 }
         }
 
-        public void RegisterMove(Piece piece, Square destination, PieceType promotionType = null)
-        {
-            if (piece.Colour != ColourWhoseTurnItIs)
-            {
-                throw new InvalidMoveException("It is the other colours move");
-            }
-            if (!piece.PotentialMoves().Contains(destination))
-            {
-                throw new InvalidMoveException("That piece cannot move to that square");
-            }
-            if (destination.Piece != null)
-            {
-                destination.Piece.Square = null;
-            }
-            var origin = piece.Square;
-            var targetPiece = destination.Piece;
-            destination.Piece = piece;
-            piece.Square = destination;
-            piece.HasMoved = true;
-            origin.Piece = null;
-            if (piece.PieceType == PieceType.Pawn && targetPiece == null && origin.X != destination.X)
-            {
-                //must be en-passant
-                var actualTarget = piece.Square.Nav(y: piece.Colour.Direction*-1);
-                actualTarget.Piece.Square = null;
-                actualTarget.Piece = null;
-            }
-
-            if (piece.PieceType == PieceType.King && (origin.X - destination.X) == 2)
-            { // must be castling
-                if (destination.X == 2)
-                {
-                    var rook = destination.Nav(x: -2).Piece;
-                    rook.Square.Piece = null;
-                    rook.Square = destination.Nav(x: -1);
-                    rook.Square.Piece = rook;
-                    rook.HasMoved = true;
-                }
-                else
-                {
-                    var rook = destination.Nav(x: 3).Piece;
-                    rook.Square.Piece = null;
-                    rook.Square = destination.Nav(x: 1);
-                    destination.Nav(x: -1).Piece = rook;
-                    rook.HasMoved = true;
-                }
-            }
-            Moves.Add(Tuple.Create(piece, origin, destination));
-            ColourWhoseTurnItIs = ColourWhoseTurnItIs.Opponent;
-        }
-
+        
         public override string ToString()
         {
             var sb = new StringBuilder();
@@ -182,7 +149,15 @@ namespace ChessEngine
         {
             return Pieces.Where(p => p.Colour == piece.Colour.Opponent);
         }
+
+        
+     
     }
 
-
+    public enum GameState   
+    {
+        InProgress,
+        Stalemate,
+        CheckMate,
+    }
 }
