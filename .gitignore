@@ -30,3 +30,4 @@ $tf*/
 [Pp]ackages/
 _NCrunch_ChessEngine
 /*.ncrunchsolution
+/ChessEngine/*.ncrunchproject
