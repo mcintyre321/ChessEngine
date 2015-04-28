@@ -9,6 +9,9 @@ namespace ChessEngine.Tests
         [Test]
         public void CheckBoardLayout()
         {
+            //When a game is created
+            var game = new ChessGame()
+            //Then the board should be laid out correctly
             var layout = @"
 |♜|♞|♝|♛|♚|♝|♞|♜|
 |♟|♟|♟|♟|♟|♟|♟|♟|
@@ -18,12 +21,13 @@ namespace ChessEngine.Tests
 |＿|＿|＿|＿|＿|＿|＿|＿|
 |♙|♙|♙|♙|♙|♙|♙|♙|
 |♖|♘|♗|♕|♔|♗|♘|♖|";
-            Assert.AreEqual(new ChessGame().ToString().Trim(), layout.Trim());
+            Assert.AreEqual(game.ToString().Trim(), layout.Trim());
         }
 
         [Test]
         public void PawnsCanThreaten()
         {
+            //Given a pawn threatens another piece
             var layout = @"
 |♜|♞|♝|♛|♚|♝|♞|♜|
 |♟|♟|♟|♟|＿|♟|♟|♟|
@@ -34,7 +38,11 @@ namespace ChessEngine.Tests
 |♙|♙|♙|＿|♙|♙|♙|♙|
 |♖|♘|♗|♕|♔|♗|♘|♖|";
             var chessBoard = new ChessGame(layout);
-            Assert.True(chessBoard[3, 3].Piece.PotentialMoves().Select(move => move.Destination).Contains(chessBoard[4, 4]));
+            //When the pawn's moves are listed
+            var moves = chessBoard[3, 3].Piece.PotentialMoves();
+            
+            //The other pieces square is available
+            Assert.True(moves.Select(move => move.Destination).Contains(chessBoard[4, 4]));
         }
 
         [Test]
